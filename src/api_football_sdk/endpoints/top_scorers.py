@@ -6,7 +6,7 @@ This module wraps the `/players/topscorers`, `/players/topassists`,
 
 Usage example:
 --------------
-    from api_football.endpoints.top_scorers import get_top_scorers
+    from api_football_sdk.endpoints.top_scorers import get_top_scorers
 
     top_scorers = await get_top_scorers(league_id=39, season=2020)
 """
@@ -17,94 +17,73 @@ from typing import Any
 
 from api_football_sdk.client import get_client
 
+__all__: list[str] = [
+    "get_top_scorers",
+    "get_top_assists",
+    "get_top_red_cards",
+    "get_top_yellow_cards",
+]
+
 
 async def get_top_scorers(league_id: int, season: int) -> list[dict[str, Any]]:
     """
     Get the top scorers in a specific league and season.
 
-    Parameters
-    ----------
-    league_id : int
-        ID of the league.
-    season : int
-        Year of the season.
-
-    Returns
-    -------
-    list of dict
-        List of top scorers with goals count and player metadata.
+    :param league_id: ID of the league.
+    :param season: Year of the season.
+    :return: List of top scorers with goals count and player metadata.
     """
     client = get_client()
     response = await client.get(
-        "/players/topscorers", params={"league": league_id, "season": season}
+        "/players/topscorers",
+        params={"league": league_id, "season": season},
     )
-    return response.json()["response"]
+    return response.json().get("response", [])
 
 
 async def get_top_assists(league_id: int, season: int) -> list[dict[str, Any]]:
     """
     Get the players with most assists in a specific league and season.
 
-    Parameters
-    ----------
-    league_id : int
-        ID of the league.
-    season : int
-        Year of the season.
-
-    Returns
-    -------
-    list of dict
-        List of players with highest number of assists.
+    :param league_id: ID of the league.
+    :param season: Year of the season.
+    :return: List of players with highest number of assists.
     """
     client = get_client()
     response = await client.get(
-        "/players/topassists", params={"league": league_id, "season": season}
+        "/players/topassists",
+        params={"league": league_id, "season": season},
     )
-    return response.json()["response"]
+    return response.json().get("response", [])
 
 
 async def get_top_red_cards(league_id: int, season: int) -> list[dict[str, Any]]:
     """
     Get the players with the most red cards in a league and season.
 
-    Parameters
-    ----------
-    league_id : int
-        ID of the league.
-    season : int
-        Year of the season.
-
-    Returns
-    -------
-    list of dict
-        List of players with most red cards.
+    :param league_id: ID of the league.
+    :param season: Year of the season.
+    :return: List of players with most red cards.
     """
     client = get_client()
     response = await client.get(
-        "/players/topredcards", params={"league": league_id, "season": season}
+        "/players/topredcards",
+        params={"league": league_id, "season": season},
     )
-    return response.json()["response"]
+    return response.json().get("response", [])
 
 
 async def get_top_yellow_cards(league_id: int, season: int) -> list[dict[str, Any]]:
     """
     Get the players with the most yellow cards in a league and season.
 
-    Parameters
-    ----------
-    league_id : int
-        ID of the league.
-    season : int
-        Year of the season.
-
-    Returns
-    -------
-    list of dict
-        List of players with most yellow cards.
+    :param league_id: ID of the league.
+    :param season: Year of the season.
+    :return: List of players with most yellow cards.
     """
     client = get_client()
     response = await client.get(
-        "/players/topyellowcards", params={"league": league_id, "season": season}
+        "/players/topyellowcards",
+        params={"league": league_id, "season": season},
     )
-    return response.json()["response"]
+    return response.json().get("response", [])

@@ -260,6 +260,3 @@ lambda_requirements.txt
 
 # Google
 credentials.json
-
-# API
-config.py

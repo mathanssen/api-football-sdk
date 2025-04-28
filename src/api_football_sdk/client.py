@@ -29,6 +29,8 @@ from api_football_sdk.exceptions import (
     APIFootballRequestError,
 )
 
+__all__: list[str] = ["ApiFootballClient", "get_client"]
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +44,7 @@ class ApiFootballClient:
 
     DEFAULT_TIMEOUT: float = 10.0
     MAX_RETRIES: int = 3
-    BACKOFF_FACTOR: float = 0.5  # Base delay in seconds for exponential backoff
+    BACKOFF_FACTOR: float = 0.5
 
     def __init__(
         self,
@@ -52,10 +54,9 @@ class ApiFootballClient:
     ) -> None:
         self._timeout = timeout or self.DEFAULT_TIMEOUT
         self._max_retries = max_retries or self.MAX_RETRIES
-
         self._client = httpx.AsyncClient(
             base_url=str(settings.api_base_url),
-            headers=settings.default_headers,  # ✅ Use headers from settings
+            headers=settings.default_headers,
             timeout=self._timeout,
             follow_redirects=True,
         )
@@ -72,7 +73,11 @@ class ApiFootballClient:
         await self.aclose()
 
     async def aclose(self) -> None:
-        """Close the underlying AsyncClient."""
+        """
+        Close the underlying AsyncClient connection.
+
+        :return: None
+        """
         await self._client.aclose()
 
     async def request(
@@ -86,32 +91,14 @@ class ApiFootballClient:
         """
         Perform an HTTP request with retry logic on transient errors.
 
-        Retries are performed for:
-        - HTTP 5xx errors
-        - HTTP 429 (rate limiting)
-        - Network issues (timeouts, connection errors)
-
-        Parameters
-        ----------
-        method : str
-            HTTP method (GET, POST, etc.).
-        url : str
-            Endpoint relative path (e.g., "/fixtures").
-        params : dict, optional
-            Query string parameters.
-        json : dict, optional
-            Request body (for POST/PUT methods).
-
-        Returns
-        -------
-        httpx.Response
-            The HTTP response object.
-
-        Raises
-        ------
-        APIFootballHTTPError
-        APIFootballRateLimitError
-        APIFootballRequestError
+        :param method: HTTP method (GET, POST, etc.).
+        :param url: Endpoint relative path (e.g., "/fixtures").
+        :param params: Query string parameters.
+        :param json: Request body (for POST/PUT methods).
+        :return: The HTTP response object.
+        :raises APIFootballHTTPError: On API-related HTTP errors.
+        :raises APIFootballRateLimitError: On HTTP 429 Too Many Requests.
+        :raises APIFootballRequestError: On network-level request failures.
         """
         attempt = 0
 
@@ -138,7 +125,11 @@ class ApiFootballClient:
             except httpx.RequestError as exc:
                 attempt += 1
                 if attempt > self._max_retries:
-                    logger.error("Request failed after %d attempts: %s", attempt, exc)
+                    logger.error(
+                        "Request failed after %d attempts: %s",
+                        attempt,
+                        exc,
+                    )
                     raise APIFootballRequestError(exc) from exc
 
                 backoff_time = self.BACKOFF_FACTOR * (2 ** (attempt - 1))
@@ -157,7 +148,13 @@ class ApiFootballClient:
         *,
         params: dict[str, Any] | None = None,
     ) -> httpx.Response:
-        """Perform a GET request."""
+        """
+        Perform a GET request.
+
+        :param url: Endpoint relative path.
+        :param params: Query string parameters.
+        :return: HTTP response.
+        """
         return await self.request("GET", url, params=params)
 
     async def post(
@@ -167,13 +164,16 @@ class ApiFootballClient:
         params: dict[str, Any] | None = None,
         json: dict[str, Any] | None = None,
     ) -> httpx.Response:
-        """Perform a POST request."""
+        """
+        Perform a POST request.
+
+        :param url: Endpoint relative path.
+        :param params: Query string parameters.
+        :param json: Request body payload.
+        :return: HTTP response.
+        """
         return await self.request("POST", url, params=params, json=json)
 
-
-# ------------------------------
-# Singleton instance (lazy)
-# ------------------------------
 
 _client_instance: Optional[ApiFootballClient] = None
 
@@ -182,8 +182,7 @@ def get_client() -> ApiFootballClient:
     """
     Return a singleton instance of the API Football client.
 
-    The same client is reused across the application to enable
-    connection pooling and efficient resource use.
+    :return: A singleton instance of `ApiFootballClient`.
     """
     global _client_instance
     if _client_instance is None:

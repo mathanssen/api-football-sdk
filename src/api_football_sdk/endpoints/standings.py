@@ -6,7 +6,7 @@ endpoint of the API Football.
 
 Usage example:
 --------------
-    from api_football.endpoints.standings import get_standings_by_league
+    from api_football_sdk.endpoints.standings import get_standings_by_league
 
     standings = await get_standings_by_league(league_id=39, season=2020)
     print(standings)
@@ -18,29 +18,23 @@ from typing import Any
 
 from api_football_sdk.client import get_client
 
+__all__: list[str] = ["get_standings_by_league", "get_standings_by_team"]
+
 
 async def get_standings_by_league(league_id: int, season: int) -> list[dict[str, Any]]:
     """
     Get the full standings table for a given league and season.
 
-    Parameters
-    ----------
-    league_id : int
-        The unique ID of the league (e.g., 39 for Premier League).
-    season : int
-        The year of the season (e.g., 2020).
-
-    Returns
-    -------
-    list of dict
-        Each element represents a team in the standings.
+    :param league_id: The unique ID of the league (e.g., 39 for Premier League).
+    :param season: The year of the season (e.g., 2020).
+    :return: List where each element represents a team in the standings.
     """
     client = get_client()
     response = await client.get(
         "/standings",
         params={"league": league_id, "season": season},
     )
-    return response.json()["response"]
+    return response.json().get("response", [])
 
 
 async def get_standings_by_team(team_id: int, season: int) -> list[dict[str, Any]]:
@@ -49,21 +43,13 @@ async def get_standings_by_team(team_id: int, season: int) -> list[dict[str, Any
 
     Useful when you don't know the league ID but have the team ID.
 
-    Parameters
-    ----------
-    team_id : int
-        The unique ID of the team.
-    season : int
-        The season year (e.g., 2020).
-
-    Returns
-    -------
-    list of dict
-        List of standings groups containing the specified team.
+    :param team_id: The unique ID of the team.
+    :param season: The season year (e.g., 2020).
+    :return: List of standings groups containing the specified team.
     """
     client = get_client()
     response = await client.get(
         "/standings",
         params={"team": team_id, "season": season},
     )
-    return response.json()["response"]
+    return response.json().get("response", [])

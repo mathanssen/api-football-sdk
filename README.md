@@ -1,70 +1,130 @@
-# Alts Digital - API Football
+# API Football SDK
 
-Este projeto utiliza a **API Football** para capturar e analisar dados de diferentes competições de futebol, incluindo **Libertadores**, **Copa do Brasil** e **Sulamericana**. O objetivo é criar um conteúdo baseado em estatísticas para apostadores e gerar insights relevantes sobre as competições.
+This project provides an SDK for interacting with the **API Football** service, enabling the retrieval and analysis of football data across various competitions, such as the **Copa Libertadores**, **Copa do Brasil**, and **Copa Sudamericana**.
+The goal is to offer a solid and structured Python interface to fetch, filter, and analyze data for content creation and statistical insights, especially for bettors and sports analysts.
 
-## Estrutura do Projeto
+## 📦 Project Structure
 
-- `api_football/`
-  - `src/`: Contém o código-fonte principal para chamadas de API e utilitários.
-    - `fixtures.py`: Lida com fixtures de futebol (jogos, resultados).
-    - `leagues.py`: Gerencia dados das ligas.
-    - `config.py`: Configurações de API.
-    - `utils.py`: Funções auxiliares, como requisições à API.
-    - `exporters/`: Módulo para exportar dados para formatos como CSV.
-  - `tests/`: Contém os arquivos de teste unitário para as funcionalidades implementadas.
-  - `notebooks/`: Notebooks Jupyter para análise exploratória dos dados.
-  - `requirements.txt`: Lista de bibliotecas necessárias para rodar o projeto.
+- `src/api_football_sdk/`
+  - Core package with all SDK functionalities.
+  - `client.py`: HTTP client abstraction with retry logic.
+  - `config.py`: Runtime settings management.
+  - `exceptions.py`: Custom exception hierarchy.
+  - `models.py`: (Reserved for future typed models.)
+  - `adapters/`: Extensible adapter base classes.
+  - `endpoints/`: Modular implementation for each API Football endpoint.
+- `tests/`
+  - Full unit and integration test coverage, using `pytest` and `respx`.
+- `.pre-commit-config.yaml`
+  - Pre-commit hooks configuration for formatting and linting.
+- `noxfile.py`
+  - Automated sessions for testing, linting, formatting, and coverage.
+- `pyproject.toml`
+  - Project metadata, dependencies, and tool configurations.
+- `README.md`, `LICENSE`, `CHANGELOG.md`
+  - Documentation and licensing information.
 
-## Requisitos
+## ⚙️ Requirements
 
-- Python 3.8+
-- Instalar as dependências:
+- Python 3.10+
+- Install dependencies:
+
 ```bash
-  pip install -r requirements.txt
+pip install ".[dev]"
 ```
 
-## Uso
+## 🚀 Usage
 
-1. Configure sua chave da API no arquivo `config.py`.
-2. Utilize as funções em `src` para capturar dados de competições, exportar para CSV e realizar análises.
-3. Para rodar os testes:
+1. Configure your API key by setting the environment variable `API_FOOTBALL_KEY`, or create a `.env` file at the project root:
+
 ```bash
-   python -m unittest discover -s api_football/tests
+API_FOOTBALL_KEY=your_rapidapi_key
 ```
 
-## Exportando Dados
-
-O módulo `csv_exporter` localizado em `src/exporters` pode ser utilizado para exportar dados capturados da API para arquivos CSV.
-
-### Exemplo de Uso
+2. Example usage to retrieve fixtures:
 
 ```python
-from api_football.src.exporters.csv_exporter import export_fixtures_data_to_csv
+from api_football_sdk.endpoints.fixtures import get_fixtures_by_league
+import asyncio
 
+async def main():
+    fixtures = await get_fixtures_by_league(league_id=13, season=2024)
+    print(fixtures)
 
-# Exportar dados dos jogos da Libertadores 2024 para um arquivo CSV
-export_fixtures_data_to_csv(13, "2024", "libertadores_2024.csv")
+asyncio.run(main())
 ```
 
-Essa função gera um arquivo CSV contendo informações sobre os jogos, como times, gols, cartões e escanteios.
+## 🧪 Running Tests
 
-Para mais detalhes sobre como utilizar outras funções de exportação, consulte os arquivos no diretório src/exporters.
+You can run all tests with:
 
-## Análises no Jupyter Notebooks
-
-Você pode utilizar o diretório `notebooks` para realizar análises mais aprofundadas utilizando os dados exportados em CSV. Exemplos de análise incluem:
-
-- **Média de Gols**: Análise de gols marcados nas competições da Libertadores, Copa do Brasil e Sulamericana.
-- **Média de Escanteios e Cartões**: Investigação sobre padrões de cartões e escanteios por fase de competição.
-- **Análise de Acréscimos**: Tendência no aumento do tempo de acréscimos.
-
-Exemplo de importação de dados em um notebook:
-
-```python
-import pandas as pd
-
-df = pd.read_csv("libertadores_2024_fixtures.csv")
-df.head()
+```bash
+nox -s tests
 ```
 
-Esses notebooks são usados para gerar insights detalhados e auxiliar na criação de conteúdo para apostadores.
+Or manually using `pytest`:
+
+```bash
+pytest
+```
+
+Coverage report:
+
+```bash
+nox -s coverage
+```
+
+HTML coverage report will be generated under the `htmlcov/` directory.
+
+## 🚲 Development Setup
+
+Recommended development steps:
+
+```bash
+pre-commit install
+nox
+```
+
+This will automatically run formatters (`black`, `ruff`), linters, and tests during commits and local development.
+
+## 👢 Endpoints Implemented
+
+The following API Football endpoints are currently implemented:
+
+- **Timezones**
+- **Predictions**
+- **Fixtures** (Games)
+- **Events** (Goals, cards, substitutions)
+- **Statistics** (Match statistics)
+- **Lineups** (Starting XI)
+- **Standings** (League tables)
+- **Leagues** (Competition data)
+- **Trophies** (Player and coach titles)
+- **Teams** (Team metadata and statistics)
+- **Players** (Player metadata, stats, history)
+- **Coaches** (Coach metadata)
+- **Transfers** (Player transfers)
+- **Injuries** (Injury reports)
+- **Sidelined** (Unavailable players)
+- **Top Scorers** (Goals, assists, cards)
+- **Venues** (Stadiums)
+- **Countries and Seasons** (Reference data)
+- **Search** (Search functionality)
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## 📢 Contributions
+
+Contributions, feature requests, and bug reports are welcome! Feel free to open issues or submit pull requests.
+
+---
+
+# ✨ Future Improvements
+
+- Typed models with Pydantic for endpoint responses.
+- Advanced retry policies and circuit breaking.
+- Typed pagination helpers.
+
+---

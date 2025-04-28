@@ -32,11 +32,6 @@ class APIFootballError(Exception):
         super().__init__(message)
 
 
-# -------------------------------------------------------------------
-# HTTP-related error wrappers
-# -------------------------------------------------------------------
-
-
 class APIFootballRequestError(APIFootballError):
     """
     Raised when a network-level issue occurs (e.g., DNS failure,
@@ -60,17 +55,17 @@ class APIFootballHTTPError(APIFootballError):
     def __init__(self, original: httpx.HTTPStatusError) -> None:
         self.status_code: Final[int] = original.response.status_code
         self.original: Final[httpx.HTTPStatusError] = original
-        super().__init__(
-            f"HTTP error {self.status_code}: {original.response.text[:200]}"
-        )
+        super().__init__(f"HTTP error {self.status_code}: {original.response.text[:200]}")
 
     @classmethod
     def from_response(cls, response: httpx.Response) -> APIFootballHTTPError:
-        """Builds the error from a raw `httpx.Response`."""
-        try:
-            request = response.request
-        except AttributeError:
-            request = None
+        """
+        Builds the error from a raw `httpx.Response`.
+
+        :param response: The HTTP response to wrap in an exception.
+        :return: An instance of `APIFootballHTTPError`.
+        """
+        request = getattr(response, "request", None)
 
         exc = httpx.HTTPStatusError(
             message=f"Error response {response.status_code}",
@@ -81,29 +76,28 @@ class APIFootballHTTPError(APIFootballError):
 
 
 class APIFootballRateLimitError(APIFootballHTTPError):
-    """Raised when the API responds with HTTP 429 (too many requests)."""
-
-
-# -------------------------------------------------------------------
-# SDK misuse / internal misuse
-# -------------------------------------------------------------------
+    """
+    Raised when the API responds with HTTP 429 (too many requests).
+    """
 
 
 class ConfigurationError(APIFootballError):
-    """Raised when the SDK is misconfigured (e.g., missing API key)."""
+    """
+    Raised when the SDK is misconfigured (e.g., missing API key).
+    """
 
 
 class UnsupportedOperation(APIFootballError):
-    """Raised when a requested feature is not supported by the current API plan or version."""
+    """
+    Raised when a requested feature is not supported by the current API plan or version.
+    """
 
 
 class ParsingError(APIFootballError):
-    """Raised when the response could not be parsed into a valid model."""
+    """
+    Raised when the response could not be parsed into a valid model.
+    """
 
-
-# -------------------------------------------------------------------
-# Aliases for quick catching
-# -------------------------------------------------------------------
 
 NetworkError = APIFootballRequestError
 ServerError = APIFootballHTTPError
