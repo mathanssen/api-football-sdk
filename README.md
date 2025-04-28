@@ -119,12 +119,8 @@ This project is licensed under the [MIT License](LICENSE).
 
 Contributions, feature requests, and bug reports are welcome! Feel free to open issues or submit pull requests.
 
----
-
 # ✨ Future Improvements
 
 - Typed models with Pydantic for endpoint responses.
 - Advanced retry policies and circuit breaking.
 - Typed pagination helpers.
-
----
